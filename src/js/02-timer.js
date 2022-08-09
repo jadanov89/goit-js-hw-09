@@ -6,16 +6,16 @@ import 'flatpickr/dist/flatpickr.min.css';
 import Notiflix from 'notiflix';
 
 const refs = {
-  inputEl: document.querySelector('#datetime-picker'),
-  buttonStartEl: document.querySelector('button[data-start]'),
-  daysValueEl: document.querySelector('span[data-days]'),
-  hoursValueEl: document.querySelector('span[data-hours]'),
-  minutesValueEl: document.querySelector('span[data-minutes]'),
-  secondsValueEl: document.querySelector('span[data-seconds]'),
+  input: document.querySelector('#datetime-picker'),
+  buttonStart: document.querySelector('button[data-start]'),
+  daysValue: document.querySelector('span[data-days]'),
+  hoursValue: document.querySelector('span[data-hours]'),
+  minutesValue: document.querySelector('span[data-minutes]'),
+  secondsValue: document.querySelector('span[data-seconds]'),
 };
 
-refs.buttonStartEl.addEventListener('click', getSelectedTime);
-refs.buttonStartEl.disabled = true;
+refs.buttonStart.addEventListener('click', getSelectedTime);
+refs.buttonStart.disabled = true;
 
 const options = {
   enableTime: true,
@@ -31,20 +31,20 @@ function onClose(selectedDates) {
   if (ms < 0) {
     Notiflix.Notify.failure('Please choose a date in the future');
   } else {
-    refs.buttonStartEl.removeAttribute('disabled', 'true');
+    refs.buttonStart.removeAttribute('disabled', 'true');
   }
 }
 
-flatpickr(refs.inputEl, options);
+flatpickr(refs.input, options);
 
 function getSelectedTime() {
   timerStart();
-  refs.buttonStartEl.disabled = true;
+  refs.buttonStart.disabled = true;
 }
 
 function timerStart() {
   refs.inputEl.disabled = true;
-  const selectedDay = new Date(refs.inputEl.value);
+  const selectedDay = new Date(refs.input.value);
   const selectedTimeMs = selectedDay.getTime();
   const intervalId = setInterval(() => {
     const currentTime = Date.now();
@@ -52,7 +52,7 @@ function timerStart() {
 
     if (deltaTime < 0 && deltaTime > -1000) {
       clearInterval(intervalId);
-      refs.inputEl.disabled = true;
+      refs.input.disabled = true;
     } else {
       updateTime(convertMs(deltaTime));
     }
@@ -86,8 +86,8 @@ function convertMs(time) {
 }
 
 function updateTime({ days, hours, minutes, seconds }) {
-  refs.daysValueEl.innerHTML = days;
-  refs.hoursValueEl.innerHTML = hours;
-  refs.minutesValueEl.innerHTML = minutes;
-  refs.secondsValueEl.innerHTML = seconds;
+  refs.daysValue.innerHTML = days;
+  refs.hoursValue.innerHTML = hours;
+  refs.minutesValue.innerHTML = minutes;
+  refs.secondsValue.innerHTML = seconds;
 }
