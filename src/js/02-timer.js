@@ -43,7 +43,7 @@ function getSelectedTime() {
 }
 
 function timerStart() {
-  refs.inputEl.disabled = true;
+  refs.input.disabled = true;
   const selectedDay = new Date(refs.input.value);
   const selectedTimeMs = selectedDay.getTime();
   const intervalId = setInterval(() => {
