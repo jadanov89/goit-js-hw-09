@@ -15,8 +15,8 @@ function formSubmitOn (e) {
     let step = Number(refs.stepInput.value);
     let amount = Number(refs.amountInput.value);
 
-    for (let i = 1; i <= amount; i++) {
-    createPromise(position, delay)
+    for (let position = 1; position <= amount; position+=1) {
+     createPromise(position, delay)
       .then(({ position, delay }) => {
         Notiflix.Notify.success(
           `✅ Fulfilled promise ${position} in ${delay}ms`
@@ -24,7 +24,7 @@ function formSubmitOn (e) {
   })
   .catch(({ position, delay }) => {
     console.log();
-    Notiflix.Notify.success(
+    Notiflix.Notify.failure(
         `❌ Rejected promise ${position} in ${delay}ms`
         );
   });
