@@ -5,76 +5,78 @@ import 'flatpickr/dist/flatpickr.min.css';
 
 import Notiflix from 'notiflix';
 
-const refs = {
-    inputEl: document.querySelector("#datetime-picker"),
-    startButton: document.querySelector("[data-start]"),
-    timerEl: document.querySelector(".timer"),
-    daysEl: document.querySelector("[data-days]"),
-    hoursEl: document.querySelector("[data-hours]"),
-    minutesEl: document.querySelector("[data-minutes]"),
-    secondsEl: document.querySelector("[data-seconds]"),
-}
+const data = document.querySelector('#datetime-picker');
+const startButton = document.querySelector('button[data-start]');
+const valueTime = document.querySelectorAll('.value');
 
+startButton.addEventListener('click', onStartButton);
+startButton.disabled = true;
 
-const countDate = flatpickr("#datetime-picker", {
+const options = {
     enableTime: true,
-    dateFormat: "Y-m-d H:i",
     time_24hr: true,
     defaultDate: new Date(),
     minuteIncrement: 1,
-    onClose(selectedDates) {
-      console.log(selectedDates[0]);
-    },
-})
+    onClose,
+}
 
+flatpickr(data, options);
 
-refs.startButton.addEventListener('click', onStartClick)
-refs.inputEl.addEventListener('input', onInputClick)
+let selectedTime = 0;
+let intervalId = null;
 
+function onClose(selectedDates) {
+        if (selectedDates[0] < options.defaultDate) {
+            Notiflix.Notify.failure('Choose the future date, please');
+            return 
+        }else  {
+            startButton.disabled = false;
+            selectedTime = selectedDates[0];
+        };
+};
+function timeInterval(date) {
+    intervalId = setInterval(() => {
+        const currentTime = Date.now();
+        const countdownTime  = date - currentTime;
+        const time = convertMs(countdownTime);
+        updateBodyTime(time);
+
+        if (countdownTime <= 0)  {
+            data.disabled = false;
+            clearInterval(intervalId);
+              
+        }
+    }, 1000); 
+};
+
+function onStartButton() {
+    startButton.disabled = true;
+    data.disabled = true;
+    timeInterval(selectedTime); 
+    
+};
+
+function addLeadingZero(value) {
+    return String(value).padStart(2, '0');
+};
 
 function convertMs(ms) {
-  // Number of milliseconds per unit of time
   const second = 1000;
   const minute = second * 60;
   const hour = minute * 60;
   const day = hour * 24;
 
-  // Remaining days
-  const days = Math.floor(ms / day);
-  // Remaining hours
-  const hours = Math.floor((ms % day) / hour);
-  // Remaining minutes
-  const minutes = Math.floor(((ms % day) % hour) / minute);
-  // Remaining seconds
-  const seconds = Math.floor((((ms % day) % hour) % minute) / second);
-
+  const days = addLeadingZero(Math.floor(ms / day));
+  const hours = addLeadingZero(Math.floor((ms % day) / hour));
+  const minutes = addLeadingZero(Math.floor(((ms % day) % hour) / minute));
+    const seconds = addLeadingZero(Math.floor((((ms % day) % hour) % minute) / second));
+    
   return { days, hours, minutes, seconds };
-}
+};
 
-function pad(value) {
-    return String(value).padStart(2, '0')
-}
-
-
-function onInputClick() {
-    const today = new Date();
-    if (today >= countDate.selectedDates[0]) {
-        Notiflix.Notify.failure('Choose the future date, please');
-        return 
-    }
-    refs.startButton.removeAttribute('disabled')
-}
-
-
-function onStartClick() {
-    Notiflix.Notify.success('Сountdown has started');
-    const intervalId = setInterval(() => {
-        const today = new Date();
-        const countDowndDifference = countDate.selectedDates[0] - today
-        const countDown = convertMs(countDowndDifference)
-        refs.daysEl.textContent = pad(countDown.days)
-        refs.hoursEl.textContent = pad(countDown.hours)
-        refs.minutesEl.textContent = pad(countDown.minutes)
-        refs.secondsEl.textContent = pad(countDown.seconds)
-    }, 1000)
-}
+function updateBodyTime({ days, hours, minutes, seconds }) {
+    valueTime[0].textContent = days; 
+    valueTime[1].textContent = hours; 
+    valueTime[2].textContent = minutes; 
+    valueTime[3].textContent = seconds;   
+};
