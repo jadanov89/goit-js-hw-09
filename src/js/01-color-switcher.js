@@ -18,13 +18,13 @@ const refs = {
     }, 1000);
   
     refs.startBtn.disabled = true;
-    refs.startBtn.disabled = false;
-  };
+    refs.stopBtn.disabled = false;
+  }
 
 
   function onStopBtnClick () {
     clearInterval(timerOn);
-    refs.stopBtn.removeAttribute.disabled = false;
-    refs.stopBtn.setAttribute.disabled = true;
+    refs.startBtn.disabled = false;
+    refs.stopBtn.disabled = true;
   }
 
