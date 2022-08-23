@@ -5,78 +5,88 @@ import 'flatpickr/dist/flatpickr.min.css';
 
 import Notiflix from 'notiflix';
 
-const data = document.querySelector('#datetime-picker');
-const startButton = document.querySelector('button[data-start]');
-const valueTime = document.querySelectorAll('.value');
+const refs = {
+    timerWrapper: document.querySelector(".timer"),
+    timeField: document.querySelectorAll(".field"),
 
-startButton.addEventListener('click', onStartButton);
-startButton.disabled = true;
-
-const options = {
-    enableTime: true,
-    time_24hr: true,
-    defaultDate: new Date(),
-    minuteIncrement: 1,
-    onClose,
+    picker: document.querySelector("#datetime-picker"),
+    btnStart: document.querySelector("button[data-start]"),
+    days: document.querySelector("[data-days]"),
+    hours: document.querySelector("[data-hours]"),
+    minutes: document.querySelector("[data-minutes]"),
+    seconds: document.querySelector("[data-seconds]")
 }
 
-flatpickr(data, options);
+refs.btnStart.disabled = true;
+let endDate = null
+const options = {
+  enableTime: true,
+  time_24hr: true,
+  defaultDate: new Date(),
+  minuteIncrement: 1,
+    onClose(selectedDates) {
+        endDate = Date.parse(selectedDates);
+        if (selectedDates[0] <= Date.now()) {
+          Notify.failure("Please choose a date in the future")
+          refs.btnStart.disabled = true;
+            return
+        } else {
+          if (selectedDates[0] >= Date.now())
+          {
+            refs.btnStart.disabled = false;
+            refs.btnStart.addEventListener("click", timerStart);
 
-let selectedTime = 0;
-let intervalId = null;
-
-function onClose(selectedDates) {
-        if (selectedDates[0] < options.defaultDate) {
-            Notiflix.Notify.failure('Choose the future date, please');
-            return 
-        }else  {
-            startButton.disabled = false;
-            selectedTime = selectedDates[0];
-        };
-};
-function timeInterval(date) {
-    intervalId = setInterval(() => {
-        const currentTime = Date.now();
-        const countdownTime  = date - currentTime;
-        const time = convertMs(countdownTime);
-        updateBodyTime(time);
-
-        if (countdownTime <= 0)  {
-            data.disabled = false;
-            clearInterval(intervalId);
-              
-        }
-    }, 1000); 
+          }
+            
+            }
+  },
 };
 
-function onStartButton() {
-    startButton.disabled = true;
-    data.disabled = true;
-    timeInterval(selectedTime); 
+function timerStart() {
+    const intervalTimer = setInterval(() => {
+      const deltaTime = endDate - Date.parse(new Date());
+      if (deltaTime < 0) {
+    clearInterval(intervalTimer);
+    return
+  }
+                    console.log(deltaTime);
+                    changeTimer(convertMs(deltaTime));
+    }, 1000)
+  
+}
+
+function changeTimer({ days, hours, minutes, seconds }) {
+  console.log(days);
     
-};
+    refs.days.textContent = addLeadingZero(days);
+    refs.hours.textContent = addLeadingZero(hours);
+    refs.minutes.textContent = addLeadingZero(minutes);
+    refs.seconds.textContent = addLeadingZero(seconds)
+    
+}
 
 function addLeadingZero(value) {
-    return String(value).padStart(2, '0');
-};
+   return `${value}`.padStart(2, "0")
+}
 
 function convertMs(ms) {
+  // Number of milliseconds per unit of time
   const second = 1000;
   const minute = second * 60;
   const hour = minute * 60;
   const day = hour * 24;
 
-  const days = addLeadingZero(Math.floor(ms / day));
-  const hours = addLeadingZero(Math.floor((ms % day) / hour));
-  const minutes = addLeadingZero(Math.floor(((ms % day) % hour) / minute));
-    const seconds = addLeadingZero(Math.floor((((ms % day) % hour) % minute) / second));
-    
-  return { days, hours, minutes, seconds };
-};
+  // Remaining days
+  const days = Math.floor(ms / day);
+  // Remaining hours
+  const hours = Math.floor((ms % day) / hour);
+  // Remaining minutes
+  const minutes = Math.floor(((ms % day) % hour) / minute);
+  // Remaining seconds
+  const seconds = Math.floor((((ms % day) % hour) % minute) / second);
 
-function updateBodyTime({ days, hours, minutes, seconds }) {
-    valueTime[0].textContent = days; 
-    valueTime[1].textContent = hours; 
-    valueTime[2].textContent = minutes; 
-    valueTime[3].textContent = seconds;   
-};
+  return { days, hours, minutes, seconds };
+}
+
+
+const fpCalendar = flatpickr(refs.picker, options)
